@@ -52,7 +52,7 @@ if __name__ == '__main__':
     trackerType = 'MOSSE'
 
     # Create a video capture
-    cap = cv2.VideoCapture('Video/Vahicles.mp4')
+    cap = cv2.VideoCapture('Video/Vehicles.mp4')
 
     # read first frame
     success, frame = cap.read()
@@ -79,10 +79,50 @@ if __name__ == '__main__':
             break
 
     # print message
-    print(f'Selected boxes {rects}')
+    print("Selected boxes {}".format(rects))
 
     # Create multi tracker
-    multitracker = cv2.
+    multitracker = cv2.MultiTracker_create()
+
+    # initialize multitracker
+    for rect_box in rects:
+        multitracker.add(tracker_name(tracker_types),
+                         frame,
+                         rect_box)
+
+    # Video and Tracker
+    # while loop
+    while cap.isOpened():
+        success, frame = cap.read()
+        if not success:
+            break
+
+        # update location objects
+        success, boxes = multitracker.update(frame)
+
+        # draw the objects tracked
+        for i, newbox in enumerate(boxes):
+            pts1 = (int(newbox[0]),
+                    int(newbox[1]))
+            pts2 = (int(newbox[0] + newbox[2]),
+                    int(newbox[1] + newbox[3]))
+            cv2.rectangle(frame,
+                          pts1,
+                          pts2,
+                          colors[i],
+                          2,
+                          1)
+
+        # display frame
+        cv2.imshow('Multitracker', frame)
+
+        # close the frame
+        if cv2.waitKey(20) & 0xFF == 27:
+            break
+
+# release and destroy
+cap.release()
+cv2.destroyAllWindows()
 
 
 
